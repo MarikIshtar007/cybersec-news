@@ -13,3 +13,10 @@ Uri urlForStories(HnNewsType newsType) {
 }
 
 DateFormat kStoryTileFormatter = DateFormat('yMMMd');
+
+const double kHorizontalSpacingMargin = 16;
+const double kVerticalSmallSpaceMargin = 5;
+
+String getUniqueHeroTag(String content, {required String prefix}) {
+  return prefix + content;
+}
