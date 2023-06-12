@@ -42,6 +42,8 @@ dependencies:
   firebase_core: ^2.13.1
   provider: ^6.0.5
   cloud_firestore: ^4.8.0
+  animations: ^2.0.7
+  drop_cap_text: ^1.1.3
 
 
 dev_dependencies:

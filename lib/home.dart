@@ -43,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
           }),
         ),
         appBar: AppBar(
-          systemOverlayStyle: SystemUiOverlayStyle(
+          systemOverlayStyle: SystemUiOverlayStyle.dark.copyWith(
             statusBarColor: Colors.white,
           ),
           backgroundColor: Colors.white,

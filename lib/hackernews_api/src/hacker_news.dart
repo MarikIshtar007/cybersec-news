@@ -5,6 +5,7 @@ import 'package:cybersec_news/hackernews_api/helper/enums.dart';
 import 'package:cybersec_news/hackernews_api/helper/exception.dart';
 import 'package:cybersec_news/hackernews_api/model/comment.dart';
 import 'package:cybersec_news/hackernews_api/model/story.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class HackerNews {
@@ -74,10 +75,10 @@ class HackerNews {
   }
 
   ///Function used to access story kids and return `List<Comments>`
-  Future<List<HnComment>> getComments(List<dynamic> kidIds) async {
+  static Future<List<HnComment>> getComments(List<dynamic> kidIds) async {
     final List<http.Response> responses = await _getComments(kidIds);
-
     final List<HnComment> stories = responses.map((response) {
+      debugPrint(response.body);
       final json = jsonDecode(response.body);
 
       return HnComment.fromJson(json);
@@ -106,7 +107,7 @@ class HackerNews {
     return http.get(urlForStory(storyId));
   }
 
-  Future<List<http.Response>> _getComments(List<dynamic> kidIds) async {
+  static Future<List<http.Response>> _getComments(List<dynamic> kidIds) async {
     return Future.wait(kidIds.take(30).map((kidId) {
       return http.get(urlForStory(kidId));
     }));
