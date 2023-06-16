@@ -42,11 +42,11 @@ class HnComment {
   factory HnComment.fromJson(json) {
     return HnComment(
       id: json['id'],
-      text: json["text"],
-      by: json['by'],
-      type: json['type'],
-      parent: json['parent'],
-      time: json['time'],
+      text: json["text"] ?? "",
+      by: json['by'] ?? "",
+      type: json['type'] ?? "",
+      parent: json['parent'] ?? "",
+      time: json['time'] ?? 0,
       dead: json['dead'] ?? false,
       deleted: json['deleted'] ?? false,
       kids: json['kids']?.cast<int>() ?? [],

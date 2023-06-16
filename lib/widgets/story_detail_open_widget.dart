@@ -1,6 +1,7 @@
 import 'package:cybersec_news/hackernews_api/hackernews_api.dart';
 import 'package:cybersec_news/hackernews_api/helper/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class StoryDetailOpenWidget extends StatefulWidget {
@@ -245,7 +246,54 @@ class _StoryDetailOpenWidgetState extends State<StoryDetailOpenWidget> {
               Expanded(
                 child: ListView.builder(
                   itemBuilder: (context, index) {
-                    return FlutterLogo();
+                    final commentData = comments[index];
+                    if (commentData.type == "comment") {
+                      return Card(
+                        elevation: 0.0,
+                        margin: EdgeInsets.symmetric(vertical: 10),
+                        child: ListTile(
+                          leading: Container(
+                            padding: EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.grey.shade300,
+                            ),
+                            child: FaIcon(
+                              FontAwesomeIcons.user,
+                              color: Colors.black,
+                            ),
+                          ),
+                          title: RichText(
+                              text: TextSpan(
+                                  text: "${commentData.by}  ",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                  children: [
+                                TextSpan(text: getCommentTime(commentData.time))
+                              ])),
+                          subtitle: Html(
+                            data: commentData.text,
+                            onLinkTap: (url, context, map, element) {
+                              debugPrint("The tapped url: $url");
+                              //TODO: Launch webview to view the comment in:
+                              // Either make a custom webview or a custom page to
+                              // showcase just the post and comment in question.
+                            },
+                            //TODO: Add onImageTAp
+//https://github.com/Sub6Resources/flutter_html/tree/master/example
+                            onAnchorTap: (url, _, __, ___) {
+                              print("dddd $url");
+                            },
+                          ),
+                        ),
+                      );
+                    } else {
+                      print(commentData.type);
+                      return FlutterLogo();
+                    }
                   },
                   itemCount: comments.length,
                 ),
@@ -256,5 +304,20 @@ class _StoryDetailOpenWidgetState extends State<StoryDetailOpenWidget> {
         ),
       ),
     );
+  }
+}
+
+String getCommentTime(int timestamp) {
+  DateTime commentTime = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+  Duration duration = DateTime.now().difference(commentTime);
+
+  if (duration.inDays > 0) {
+    return "${duration.inDays.toString()}d";
+  } else if (duration.inHours > 0) {
+    return "${duration.inHours.toString()}h";
+  } else if (duration.inMinutes > 0) {
+    return "${duration.inMinutes.toString()}m";
+  } else {
+    return "${duration.inSeconds.toString()}";
   }
 }
