@@ -77,7 +77,14 @@ class MainBody extends StatefulWidget {
   State<MainBody> createState() => _MainBodyState();
 }
 
-class _MainBodyState extends State<MainBody> {
+class _MainBodyState extends State<MainBody>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  void didUpdateWidget(covariant MainBody oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    debugPrint("This getting called");
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
@@ -87,7 +94,7 @@ class _MainBodyState extends State<MainBody> {
           return Center(child: Text('Something went terribly wrong. '));
         }
         if (snapshot.data == null) {
-          return Center(child: CircularProgressIndicator());
+          return Center(child: Text("Wow. So empty"));
         }
         if (snapshot.data!.state == StoryQueryState.querying) {
           return Center(child: CircularProgressIndicator());
@@ -186,4 +193,8 @@ class _MainBodyState extends State<MainBody> {
       },
     );
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 }

@@ -22,10 +22,12 @@ class HnProvider extends ChangeNotifier {
   StreamController<StoryStateWrapper> get homeStories => _homeStories;
 
   HnProvider() {
-    getInitialHomeData();
+    getHomeData();
   }
 
-  void getInitialHomeData() async {
+  // Use flutter_cache_manager to cache api. Solve the repeated calls
+
+  void getHomeData() async {
     List<HnStory> carouselTopStories = await HackerNews.getCarouselTopStories();
     List<HnStory> homeNewStories =
         await HackerNews.getStories(HnNewsType.newStories, count: 10);
@@ -34,5 +36,4 @@ class HnProvider extends ChangeNotifier {
     homeStories.add(
         StoryStateWrapper(state: StoryQueryState.done, data: homeStoryData));
   }
-  //TODO:
 }

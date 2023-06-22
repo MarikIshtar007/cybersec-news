@@ -89,7 +89,11 @@ class HackerNews {
 
   static Future<List<http.Response>> _getStories(HnNewsType type,
       {int count = 10}) async {
+    final Uri uri = urlForStories(type);
+    debugPrint("Request sent: ${uri.toString()}");
     final response = await http.get(urlForStories(type));
+    debugPrint("Response Code: ${response.statusCode}");
+    debugPrint("Response : ${response.body}");
 
     if (response.statusCode == 200) {
       Iterable storyIds = jsonDecode(response.body);

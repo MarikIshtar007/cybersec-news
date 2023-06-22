@@ -23,12 +23,15 @@ class AnnouncementData {
   factory AnnouncementData.fromDocumentSnapshot(DocumentSnapshot response) {
     final snapshot = response.data() as Map<String, dynamic>;
     return AnnouncementData(
-      actionBtnText: snapshot['action_btn _text'] ?? "",
+      actionBtnText: snapshot['action_btn_text'] ?? "",
       actionBtnRedirect: snapshot['action_btn_redirect'] ?? "",
       actionBtnDisplay: snapshot['action_btn'] ?? "",
       backdrop: snapshot['backdrop'] ?? "",
       description: snapshot['description'] ?? "",
-      images: (snapshot['images'] as List<String>) ?? [],
+      images: (snapshot['images'] as List<dynamic>)
+              .map((e) => e.toString())
+              .toList() ??
+          [],
       name: snapshot['name'] ?? "",
       timestamp: snapshot['timestamp'],
     );
