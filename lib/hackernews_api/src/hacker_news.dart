@@ -5,6 +5,7 @@ import 'package:cybersec_news/hackernews_api/helper/enums.dart';
 import 'package:cybersec_news/hackernews_api/helper/exception.dart';
 import 'package:cybersec_news/hackernews_api/model/comment.dart';
 import 'package:cybersec_news/hackernews_api/model/story.dart';
+import 'package:cybersec_news/models/api_response.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -24,33 +25,6 @@ class HackerNews {
   /// default is
   ///[HnNewsType.topStories]
   final HnNewsType newsType;
-
-  static Future<List<HnStory>> getCarouselTopStories() async {
-    final List<http.Response> response =
-        await _getStories(HnNewsType.topStories, count: 8);
-
-    final List<HnStory> stories = response.map((response) {
-      final json = jsonDecode(response.body);
-
-      return HnStory.fromJson(json);
-    }).toList();
-
-    return stories;
-  }
-
-  ///Function used to access stories which returns `List<Story>`
-  static Future<List<HnStory>> getStories(HnNewsType type,
-      {int count = 10}) async {
-    final List<http.Response> responses = await _getStories(type);
-
-    final List<HnStory> stories = responses.map((response) {
-      final json = jsonDecode(response.body);
-
-      return HnStory.fromJson(json);
-    }).toList();
-
-    return stories;
-  }
 
   ///Function used to access single story by using [storyID]
   Future<HnStory> getStory(int storyID) async {
@@ -87,8 +61,10 @@ class HackerNews {
     return stories;
   }
 
-  static Future<List<http.Response>> _getStories(HnNewsType type,
-      {int count = 10}) async {
+  ///Queries the list of ids of the provided type and then gets each of its stories.
+  /// Returns a GenericResponse object type with the response of a Map<String, dynamic>
+  /// having the _data_ field set to a list of story objects.
+  static Future<GenericResponse> getStories(HnNewsType type, int count) async {
     final Uri uri = urlForStories(type);
     debugPrint("Request sent: ${uri.toString()}");
     final response = await http.get(urlForStories(type));
@@ -97,10 +73,13 @@ class HackerNews {
 
     if (response.statusCode == 200) {
       Iterable storyIds = jsonDecode(response.body);
+      Map<String, dynamic> data = <String, dynamic>{"data": []};
 
-      return Future.wait(storyIds.take(count).map((storyId) {
-        return _getStory(storyId);
-      }));
+      storyIds.take(count).map((storyId) async {
+        (data['data'] as List)
+            .add(json.decode((await _getStory(storyId)).body));
+      });
+      return GenericResponse(status: 200, response: data, error: null);
     } else {
       throw NewsException("Unable to fetch data! ${response.statusCode}");
     }
