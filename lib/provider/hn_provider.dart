@@ -26,13 +26,19 @@ class HnProvider extends ChangeNotifier {
   StreamController<StoryStateWrapper> get homeStories => _homeStories;
 
   HnProvider() {
+    bool forceOverride = false;
     HomeResponse initialData = HackerNewsCacheHelper.getCachedHomeData();
     softDataHolder = HomeStoryData(
         carouselTopStories: initialData.topStories,
         newStories: initialData.newStories);
+    if (softDataHolder.newStories.isEmpty ||
+        softDataHolder.carouselTopStories.isEmpty) {
+      forceOverride = true;
+    }
     homeStories.add(StoryStateWrapper(
         state: StoryQueryState.background_querying, data: softDataHolder));
-    getHomeData();
+    debugPrint(HackerNewsCacheHelper.cacheTimeout().toString());
+    getHomeData(override: forceOverride);
   }
 
   //TODO: Find an efficient way to handle this logic

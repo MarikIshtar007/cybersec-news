@@ -66,19 +66,20 @@ class HackerNews {
   /// having the _data_ field set to a list of story objects.
   static Future<GenericResponse> getStories(HnNewsType type, int count) async {
     final Uri uri = urlForStories(type);
-    debugPrint("Request sent: ${uri.toString()}");
     final response = await http.get(urlForStories(type));
-    debugPrint("Response Code: ${response.statusCode}");
-    debugPrint("Response : ${response.body}");
+    debugPrint("GET Request sent to: ${uri.toString()}");
+    debugPrint("Response Code:       ${response.statusCode}");
+    debugPrint("Response :           ${response.body}");
 
     if (response.statusCode == 200) {
       Iterable storyIds = jsonDecode(response.body);
       Map<String, dynamic> data = <String, dynamic>{"data": []};
+      var limitedItems = storyIds.take(count);
+      for (int ids in limitedItems) {
+        (data['data'] as List).add(json.decode((await _getStory(ids)).body));
+      }
 
-      storyIds.take(count).map((storyId) async {
-        (data['data'] as List)
-            .add(json.decode((await _getStory(storyId)).body));
-      });
+      debugPrint("Final Response: ${data.toString()}");
       return GenericResponse(status: 200, response: data, error: null);
     } else {
       throw NewsException("Unable to fetch data! ${response.statusCode}");
@@ -86,8 +87,10 @@ class HackerNews {
   }
 
   ///Function used to access single story by using [storyId]
-  static Future<http.Response> _getStory(int storyId) {
-    return http.get(urlForStory(storyId));
+  static Future<http.Response> _getStory(int storyId) async {
+    final http.Response response = await http.get(urlForStory(storyId));
+    debugPrint("What is the response here ${storyId} => ${response.body}");
+    return response;
   }
 
   static Future<List<http.Response>> _getComments(List<dynamic> kidIds) async {

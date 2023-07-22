@@ -16,17 +16,18 @@ class HackerNewsCacheHelper {
         orElse: () => null);
 
     // Get new stories
-    final cachedNewStoryResponse = box.values.firstWhere(
+    final LocalStorageSchematic cachedNewStoryResponse = box.values.firstWhere(
         (response) => response.url == kNewStoryIden,
         orElse: () => null);
-    return ((cachedTopStoryResponse != null &&
-            DateTime.now().millisecondsSinceEpoch -
-                    cachedTopStoryResponse.timestamp >
-                _cacheTimeout) &&
-        (cachedNewStoryResponse != null &&
-            DateTime.now().millisecondsSinceEpoch -
-                    cachedNewStoryResponse.timestamp >
-                _cacheTimeout));
+    if (cachedNewStoryResponse == null || cachedTopStoryResponse == null)
+      return true;
+    print('${cachedNewStoryResponse.response}');
+    return ((DateTime.now().millisecondsSinceEpoch -
+                cachedTopStoryResponse.timestamp >
+            _cacheTimeout) ||
+        (DateTime.now().millisecondsSinceEpoch -
+                cachedNewStoryResponse.timestamp >
+            _cacheTimeout));
   }
 
   static HomeResponse getCachedHomeData() {

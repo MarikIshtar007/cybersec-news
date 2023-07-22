@@ -1,9 +1,9 @@
 import 'package:cybersec_news/hackernews_api/model/story.dart';
 import 'package:cybersec_news/models/HomeStoryData.dart';
 import 'package:cybersec_news/provider/hn_provider.dart';
-import 'package:cybersec_news/top_stories_carousel.dart';
 import 'package:cybersec_news/widgets/announcement.dart';
 import 'package:cybersec_news/widgets/hn_story_tile.dart';
+import 'package:cybersec_news/widgets/top_stories_carousel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -38,9 +38,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 label: 'Announcements')
           ],
           selectedIndex: selectedTabIndex,
-          onDestinationSelected: (idx) => setState(() {
-            selectedTabIndex = idx;
-          }),
+          onDestinationSelected: (idx) {
+            setState(() {
+              selectedTabIndex = idx;
+            });
+            Provider.of<HnProvider>(context, listen: false).softQuery();
+          },
         ),
         appBar: AppBar(
           systemOverlayStyle: SystemUiOverlayStyle.dark.copyWith(
@@ -80,12 +83,6 @@ class MainBody extends StatefulWidget {
 class _MainBodyState extends State<MainBody>
     with AutomaticKeepAliveClientMixin {
   @override
-  void didUpdateWidget(covariant MainBody oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    debugPrint("This getting called");
-  }
-
-  @override
   Widget build(BuildContext context) {
     return StreamBuilder(
       stream: Provider.of<HnProvider>(context).homeStories.stream,
@@ -96,11 +93,19 @@ class _MainBodyState extends State<MainBody>
         if (snapshot.data == null) {
           return Center(child: Text("Wow. So empty"));
         }
+        if (snapshot.data!.state == StoryQueryState.background_querying) {
+          return Center(
+            child: Text('Background Querying'),
+          );
+        }
         if (snapshot.data!.state == StoryQueryState.querying) {
           return Center(child: CircularProgressIndicator());
         } else {
           final List<HnStory> carouselData =
               (snapshot.data!.data as HomeStoryData).carouselTopStories;
+          debugPrint(
+              "H#08: ==> ${(snapshot.data!.data as HomeStoryData).carouselTopStories}");
+          debugPrint(carouselData.toString());
           final List<HnStory> newStoryData =
               (snapshot.data!.data as HomeStoryData).newStories;
           return Container(
@@ -195,6 +200,5 @@ class _MainBodyState extends State<MainBody>
   }
 
   @override
-  // TODO: implement wantKeepAlive
   bool get wantKeepAlive => true;
 }

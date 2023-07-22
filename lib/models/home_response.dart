@@ -5,4 +5,10 @@ class HomeResponse {
   final List<HnStory> newStories;
 
   HomeResponse({required this.topStories, required this.newStories});
+
+  @override
+  String toString() {
+    // TODO: implement toString
+    return "Object of HomeResponse:\n${this.topStories.toString()} \n${this.newStories.toString()}";
+  }
 }
