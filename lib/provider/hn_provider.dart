@@ -5,6 +5,7 @@ import 'package:cybersec_news/models/base.dart';
 import 'package:cybersec_news/models/home_response.dart';
 import 'package:cybersec_news/utility/api_cache_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:rxdart/rxdart.dart';
 
 enum StoryQueryState { querying, background_querying, done, error }
 
@@ -16,14 +17,13 @@ class StoryStateWrapper {
 }
 
 class HnProvider extends ChangeNotifier {
-  final StreamController<StoryStateWrapper> _homeStories =
-      StreamController.broadcast()
-        ..add(StoryStateWrapper(state: StoryQueryState.querying, data: null));
+  final BehaviorSubject<StoryStateWrapper> _homeState =
+      BehaviorSubject<StoryStateWrapper>();
 
   HomeStoryData softDataHolder =
       HomeStoryData(carouselTopStories: [], newStories: []);
 
-  StreamController<StoryStateWrapper> get homeStories => _homeStories;
+  BehaviorSubject<StoryStateWrapper> get homeState => _homeState;
 
   HnProvider() {
     bool forceOverride = false;
@@ -33,9 +33,13 @@ class HnProvider extends ChangeNotifier {
         newStories: initialData.newStories);
     if (softDataHolder.newStories.isEmpty ||
         softDataHolder.carouselTopStories.isEmpty) {
+      print("H#08: Is this true everytime??");
       forceOverride = true;
     }
-    homeStories.add(StoryStateWrapper(
+    //TODO: Cases to handle using switch on home page.
+    // Background querying + no data = First run of the app OR Timeout of cache
+    // Background Query + data = show the app
+    homeState.add(StoryStateWrapper(
         state: StoryQueryState.background_querying, data: softDataHolder));
     debugPrint(HackerNewsCacheHelper.cacheTimeout().toString());
     getHomeData(override: forceOverride);
@@ -43,27 +47,34 @@ class HnProvider extends ChangeNotifier {
 
   //TODO: Find an efficient way to handle this logic
   Future<void> getHomeData({bool override = false}) async {
-    if (override) {
-      final homeDataResponse =
-          await HackerNewsCacheHelper.getHomeStoriesFromNetwork();
-      softDataHolder = HomeStoryData(
-          carouselTopStories: homeDataResponse.topStories,
-          newStories: homeDataResponse.newStories);
-    } else {
-      if (HackerNewsCacheHelper.cacheTimeout()) {
+    try {
+      if (override) {
         final homeDataResponse =
             await HackerNewsCacheHelper.getHomeStoriesFromNetwork();
         softDataHolder = HomeStoryData(
             carouselTopStories: homeDataResponse.topStories,
             newStories: homeDataResponse.newStories);
+      } else {
+        if (HackerNewsCacheHelper.cacheTimeout()) {
+          final homeDataResponse =
+              await HackerNewsCacheHelper.getHomeStoriesFromNetwork();
+          softDataHolder = HomeStoryData(
+              carouselTopStories: homeDataResponse.topStories,
+              newStories: homeDataResponse.newStories);
+        }
       }
+      homeState.add(
+          StoryStateWrapper(state: StoryQueryState.done, data: softDataHolder));
+    } catch (err, stk) {
+      debugPrint("Error in querying home data: $err --> $stk");
+      homeState.add(StoryStateWrapper(
+          state: StoryQueryState.error, data: softDataHolder));
     }
-    homeStories.add(
-        StoryStateWrapper(state: StoryQueryState.done, data: softDataHolder));
   }
 
   void softQuery() {
-    homeStories.add(
+    print("Is this getting called");
+    homeState.add(
         StoryStateWrapper(state: StoryQueryState.done, data: softDataHolder));
   }
 

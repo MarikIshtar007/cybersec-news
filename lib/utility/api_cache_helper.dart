@@ -4,6 +4,7 @@ import 'package:cybersec_news/hackernews_api/hackernews_api.dart';
 import 'package:cybersec_news/models/home_response.dart';
 import 'package:cybersec_news/utility/constants.dart';
 import 'package:cybersec_news/utility/local_storage_schematic.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 
 class HackerNewsCacheHelper {
@@ -36,13 +37,16 @@ class HackerNewsCacheHelper {
 
     // Get top stories
     final cachedTopStoryResponse = box.values.firstWhere(
-        (response) => response.url == kTopStoryIden,
+        (localStorageSchematic) => localStorageSchematic.url == kTopStoryIden,
         orElse: () => null);
 
     // Get new stories
     final cachedNewStoryResponse = box.values.firstWhere(
-        (response) => response.url == kNewStoryIden,
+        (localStorageSchematic) => localStorageSchematic.url == kNewStoryIden,
         orElse: () => null);
+
+    debugPrint("The extracted cachedTopStories are: $cachedTopStoryResponse");
+    debugPrint("The extracted cachedNewStories are: $cachedNewStoryResponse");
 
     if (cachedTopStoryResponse != null) {
       final jsonTopData =
@@ -70,6 +74,9 @@ class HackerNewsCacheHelper {
     final resultTwo = await HackerNews.getStories(HnNewsType.newStories, 10);
     final jsonResponseTwo = resultTwo.response as Map<String, dynamic>;
 
+    // Clean cache before storing new data
+    await box.clear();
+
     //Store new response to cache
     final lss = LocalStorageSchematic()
       ..url = kTopStoryIden
@@ -80,8 +87,14 @@ class HackerNewsCacheHelper {
       ..url = kNewStoryIden
       ..response = json.encode(jsonResponseTwo)
       ..timestamp = DateTime.now().millisecondsSinceEpoch;
-    await box.add(lss);
-    await box.add(lssTwo);
+    await box.add(lss).onError((error, stackTrace) {
+      debugPrint("H#08: Error occurred $error");
+      return 1;
+    });
+    await box.add(lssTwo).onError((error, stackTrace) {
+      debugPrint("H#08: Error occurred $error");
+      return 1;
+    });
 
     return HomeResponse(
         topStories: (jsonResponse['data'] as List)
