@@ -33,8 +33,8 @@ class _StoryDetailOpenWidgetState extends State<StoryDetailOpenWidget> {
     return SafeArea(
       child: Container(
         padding: EdgeInsets.symmetric(
-            vertical: MediaQuery.of(context).size.height * 0.03,
-            horizontal: MediaQuery.of(context).size.width * 0.05),
+            vertical: MediaQuery.of(context).size.height * 0.01,
+            horizontal: MediaQuery.of(context).size.width * 0.03),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -123,7 +123,7 @@ class _StoryDetailOpenWidgetState extends State<StoryDetailOpenWidget> {
                     children: [
                       TextButton(
                         child: Text(
-                          'Read it!',
+                          'Read more!',
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -144,7 +144,7 @@ class _StoryDetailOpenWidgetState extends State<StoryDetailOpenWidget> {
                         child: Row(
                           children: [
                             Text(
-                              'Copy',
+                              'Copy Link',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -242,54 +242,23 @@ class _StoryDetailOpenWidgetState extends State<StoryDetailOpenWidget> {
               thickness: 3,
               color: Colors.grey,
             ),
+            Text(
+              'Comments',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: Theme.of(context).textTheme.titleLarge!.fontSize,
+              ),
+            ),
+            SizedBox(
+              height: 8,
+            ),
             if (comments.isNotEmpty)
               Expanded(
                 child: ListView.builder(
                   itemBuilder: (context, index) {
                     final commentData = comments[index];
                     if (commentData.type == "comment") {
-                      return Card(
-                        elevation: 0.0,
-                        margin: EdgeInsets.symmetric(vertical: 10),
-                        child: ListTile(
-                          leading: Container(
-                            padding: EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.grey.shade300,
-                            ),
-                            child: FaIcon(
-                              FontAwesomeIcons.user,
-                              color: Colors.black,
-                            ),
-                          ),
-                          title: RichText(
-                              text: TextSpan(
-                                  text: "${commentData.by}  ",
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                  children: [
-                                TextSpan(text: getCommentTime(commentData.time))
-                              ])),
-                          subtitle: Html(
-                            data: commentData.text,
-                            onLinkTap: (url, context, map, element) {
-                              debugPrint("The tapped url: $url");
-                              //TODO: Launch webview to view the comment in:
-                              // Either make a custom webview or a custom page to
-                              // showcase just the post and comment in question.
-                            },
-                            //TODO: Add onImageTAp
-//https://github.com/Sub6Resources/flutter_html/tree/master/example
-                            onAnchorTap: (url, _, __, ___) {
-                              print("dddd $url");
-                            },
-                          ),
-                        ),
-                      );
+                      return Comment(commentData);
                     } else {
                       print(commentData.type);
                       return FlutterLogo();
@@ -300,6 +269,83 @@ class _StoryDetailOpenWidgetState extends State<StoryDetailOpenWidget> {
               )
             else
               Text('No comments today!!!!!!!')
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class Comment extends StatefulWidget {
+  final HnComment commentData;
+
+  const Comment(this.commentData, {Key? key}) : super(key: key);
+
+  @override
+  State<Comment> createState() => _CommentState();
+}
+
+class _CommentState extends State<Comment> {
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 0.0,
+      margin: EdgeInsets.symmetric(vertical: 4),
+      child: ListTile(
+        onLongPress: () {
+          //TODO Handle copying to clipboard
+        },
+        isThreeLine: false,
+        dense: true,
+        minVerticalPadding: 0,
+        contentPadding: EdgeInsets.symmetric(horizontal: 0),
+        title: RichText(
+            text: TextSpan(
+                text: "${widget.commentData.by}  ",
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green.shade700,
+                ),
+                children: [
+              TextSpan(
+                  text:
+                      "•  " + getCommentTime(widget.commentData.time) + " ago",
+                  style: TextStyle(
+                    fontWeight: FontWeight.normal,
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.grey,
+                  ))
+            ])),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Html(
+              data: widget.commentData.text,
+              onLinkTap: (url, context, map, element) {
+                debugPrint("The tapped url: $url");
+                //TODO: Launch webview to view the comment in:
+                // Either make a custom webview or a custom page to
+                // showcase just the post and comment in question.
+              },
+              //TODO: Add onImageTAp
+//https://github.com/Sub6Resources/flutter_html/tree/master/example
+              onAnchorTap: (url, _, __, ___) {
+                print("dddd $url");
+              },
+            ),
+            //TODO: Launch new page and show single comment tree with recursive child iterations
+            Padding(
+              padding: EdgeInsets.only(
+                  left: MediaQuery.of(context).size.width * 0.2),
+              child: InkWell(
+                onTap: () {
+                  //TODO: Goto new page
+                },
+                child: Text('Read Replies'),
+              ),
+            ),
           ],
         ),
       ),
