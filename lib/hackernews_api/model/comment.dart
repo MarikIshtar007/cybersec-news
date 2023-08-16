@@ -1,3 +1,5 @@
+import 'package:cybersec_news/widgets/comment_detail_widget.dart';
+
 class HnComment {
   ///The item's unique id.
   final int id;
@@ -52,4 +54,14 @@ class HnComment {
       kids: json['kids']?.cast<int>() ?? [],
     );
   }
+}
+
+HnCommentView toHnCommentView(HnComment hnComment) {
+  return HnCommentView(
+      id: hnComment.id,
+      text: hnComment.text,
+      by: hnComment.by,
+      type: hnComment.type,
+      time: hnComment.time,
+      parent: hnComment.parent);
 }

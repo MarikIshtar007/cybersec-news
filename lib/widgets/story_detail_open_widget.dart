@@ -1,5 +1,6 @@
 import 'package:cybersec_news/hackernews_api/hackernews_api.dart';
-import 'package:cybersec_news/hackernews_api/helper/constants.dart';
+import 'package:cybersec_news/utility/comment_helper.dart';
+import 'package:cybersec_news/widgets/story_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -39,77 +40,7 @@ class _StoryDetailOpenWidgetState extends State<StoryDetailOpenWidget> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width:
-                      Theme.of(context).textTheme.headlineSmall!.fontSize! * 3,
-                  height:
-                      Theme.of(context).textTheme.headlineSmall!.fontSize! * 3,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: EdgeInsets.all(10),
-                  child: Text(
-                    widget.hnStory.title[0],
-                    style: TextStyle(
-                      fontSize:
-                          Theme.of(context).textTheme.headlineSmall!.fontSize! *
-                              1.5,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: 20,
-                ),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.hnStory.title,
-                        style: TextStyle(
-                          fontSize: Theme.of(context)
-                              .textTheme
-                              .headlineSmall!
-                              .fontSize,
-                          color: Colors.grey.shade800,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      RichText(
-                          text: TextSpan(
-                              text: "by ${widget.hnStory.by} ",
-                              style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                  fontStyle: FontStyle.italic,
-                                  fontSize: Theme.of(context)
-                                      .textTheme
-                                      .bodyLarge!
-                                      .fontSize),
-                              children: [
-                            TextSpan(
-                              text:
-                                  " •  ${kStoryTileFormatter.format(DateTime.fromMillisecondsSinceEpoch(widget.hnStory.time * 1000))}",
-                              style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                  fontStyle: FontStyle.normal,
-                                  fontSize: Theme.of(context)
-                                      .textTheme
-                                      .bodyLarge!
-                                      .fontSize),
-                            )
-                          ])),
-                    ],
-                  ),
-                )
-              ],
-            ),
+            StoryHeader(widget.hnStory),
             SizedBox(
               height: 20,
             ),
@@ -258,7 +189,7 @@ class _StoryDetailOpenWidgetState extends State<StoryDetailOpenWidget> {
                   itemBuilder: (context, index) {
                     final commentData = comments[index];
                     if (commentData.type == "comment") {
-                      return Comment(commentData);
+                      return Comment(widget.hnStory, commentData);
                     } else {
                       print(commentData.type);
                       return FlutterLogo();
@@ -277,9 +208,10 @@ class _StoryDetailOpenWidgetState extends State<StoryDetailOpenWidget> {
 }
 
 class Comment extends StatefulWidget {
+  final HnStory hnStory;
   final HnComment commentData;
 
-  const Comment(this.commentData, {Key? key}) : super(key: key);
+  const Comment(this.hnStory, this.commentData, {Key? key}) : super(key: key);
 
   @override
   State<Comment> createState() => _CommentState();
@@ -318,52 +250,48 @@ class _CommentState extends State<Comment> {
                     color: Colors.grey,
                   ))
             ])),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Html(
-              data: widget.commentData.text,
-              onLinkTap: (url, context, map, element) {
-                debugPrint("The tapped url: $url");
-                //TODO: Launch webview to view the comment in:
-                // Either make a custom webview or a custom page to
-                // showcase just the post and comment in question.
-              },
-              //TODO: Add onImageTAp
-//https://github.com/Sub6Resources/flutter_html/tree/master/example
-              onAnchorTap: (url, _, __, ___) {
-                print("dddd $url");
-              },
-            ),
-            //TODO: Launch new page and show single comment tree with recursive child iterations
-            Padding(
-              padding: EdgeInsets.only(
-                  left: MediaQuery.of(context).size.width * 0.2),
-              child: InkWell(
-                onTap: () {
-                  //TODO: Goto new page
+        subtitle: Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Html(
+                data: widget.commentData.text,
+                onLinkTap: (url, context, map, element) {
+                  debugPrint("The tapped url: $url");
+                  //TODO: Launch webview to view the comment in:
+                  // Either make a custom webview or a custom page to
+                  // showcase just the post and comment in question.
                 },
-                child: Text('Read Replies'),
+                //TODO: Add onImageTAp
+//https://github.com/Sub6Resources/flutter_html/tree/master/example
+                onAnchorTap: (url, _, __, ___) {
+                  print("dddd $url");
+                },
               ),
-            ),
-          ],
+              /*
+              //TODO: Launch new page and show single comment tree with recursive child iterations
+              Padding(
+                padding: EdgeInsets.only(
+                    left: MediaQuery.of(context).size.width * 0.2),
+                child: InkWell(
+                  onTap: () {
+
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) =>
+                            CommentDetail(widget.hnStory, widget.commentData)));
+                    //TODO: Goto new page
+
+                  },
+                  child: Text('Read Replies'),
+                ),
+
+              ),
+               */
+            ],
+          ),
         ),
       ),
     );
-  }
-}
-
-String getCommentTime(int timestamp) {
-  DateTime commentTime = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
-  Duration duration = DateTime.now().difference(commentTime);
-
-  if (duration.inDays > 0) {
-    return "${duration.inDays.toString()}d";
-  } else if (duration.inHours > 0) {
-    return "${duration.inHours.toString()}h";
-  } else if (duration.inMinutes > 0) {
-    return "${duration.inMinutes.toString()}m";
-  } else {
-    return "${duration.inSeconds.toString()}";
   }
 }

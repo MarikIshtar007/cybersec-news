@@ -87,14 +87,17 @@ class _TopStoriesCarouselState extends State<TopStoriesCarousel> {
                                         children: [
                                           const FaIcon(
                                             FontAwesomeIcons.at,
-                                            size: 20,
+                                            size: 16,
                                           ),
                                           const SizedBox(
-                                            width: 8,
+                                            width: 3,
                                           ),
                                           Flexible(
                                             child: Text(
                                               widget.carouselData[idx].by,
+                                              style: TextStyle(
+                                                fontStyle: FontStyle.italic,
+                                              ),
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
@@ -126,7 +129,7 @@ class _TopStoriesCarouselState extends State<TopStoriesCarousel> {
                                         children: [
                                           const FaIcon(
                                             FontAwesomeIcons.comments,
-                                            size: 20,
+                                            size: 16,
                                           ),
                                           const SizedBox(
                                             width: 4,

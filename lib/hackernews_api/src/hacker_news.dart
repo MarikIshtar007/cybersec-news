@@ -6,6 +6,7 @@ import 'package:cybersec_news/hackernews_api/helper/exception.dart';
 import 'package:cybersec_news/hackernews_api/model/comment.dart';
 import 'package:cybersec_news/hackernews_api/model/story.dart';
 import 'package:cybersec_news/models/api_response.dart';
+import 'package:cybersec_news/widgets/comment_detail_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -95,6 +96,30 @@ class HackerNews {
 
   static Future<List<http.Response>> _getComments(List<dynamic> kidIds) async {
     return Future.wait(kidIds.take(30).map((kidId) {
+      return http.get(urlForStory(kidId));
+    }));
+  }
+
+  static Future<List<HnCommentView>> _getSingleCommentChain(
+      List<dynamic> kIds) async {
+    final List<http.Response> responses = await _getAllComments(kIds);
+    List<HnCommentView> comments = [];
+    for (var response in responses) {
+      final json = jsonDecode(response.body);
+      HnComment hnComment = HnComment.fromJson(json);
+      HnCommentView hnCommentView = toHnCommentView(hnComment);
+
+      if (hnComment.kids.isNotEmpty) {
+        hnCommentView.children = await _getSingleCommentChain(hnComment.kids);
+      }
+      comments.add(hnCommentView);
+    }
+    return comments;
+  }
+
+  static Future<List<http.Response>> _getAllComments(
+      List<dynamic> kidIds) async {
+    return Future.wait(kidIds.map((kidId) {
       return http.get(urlForStory(kidId));
     }));
   }
