@@ -48,129 +48,104 @@ class _StoryDetailOpenWidgetState extends State<StoryDetailOpenWidget> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Expanded(
-                  flex: 5,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      TextButton(
-                        child: Text(
-                          'Read more!',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        onPressed: () {},
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 10),
-                          backgroundColor: Colors.blue,
-                          shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(12))),
-                        ),
+                  child: TextButton(
+                    child: Text(
+                      'Read the Story',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
                       ),
-                      TextButton(
-                        child: Row(
-                          children: [
-                            Text(
-                              'Copy Link',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                            SizedBox(
-                              width: 14,
-                            ),
-                            FaIcon(
-                              FontAwesomeIcons.clipboard,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                          ],
-                        ),
-                        onPressed: () {},
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 10),
-                          backgroundColor: Colors.blue,
-                          shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(12))),
-                          textStyle: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      TextButton(
-                        child: Row(
-                          children: [
-                            Text(
-                              'Share',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: Colors.white,
-                              ),
-                            ),
-                            SizedBox(
-                              width: 14,
-                            ),
-                            FaIcon(
-                              FontAwesomeIcons.shareFromSquare,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                          ],
-                        ),
-                        onPressed: () {},
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 10),
-                          backgroundColor: Colors.blue,
-                          shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(12))),
-                          textStyle: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      )
-                    ],
+                    ),
+                    onPressed: () {},
+                    style: TextButton.styleFrom(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                      backgroundColor: Colors.blue,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(12))),
+                    ),
                   ),
                 ),
-                // Expanded(
-                //   flex: 2,
-                //   child: Column(
-                //     children: [
-                //       Text('by ${widget.hnStory.by}'),
-                //       Text(
-                //         kStoryTileFormatter.format(
-                //             DateTime.fromMillisecondsSinceEpoch(
-                //                 widget.hnStory.time * 1000)),
-                //         style: TextStyle(
-                //           color: Colors.grey,
-                //           fontWeight: FontWeight.bold,
-                //         ),
-                //       ),
-                //       Text((widget.hnStory.kids.isEmpty ||
-                //               widget.hnStory.descendants == 0)
-                //           ? 'No Comments'
-                //           : '${NumberFormat.compact().format(widget.hnStory.descendants)} comments')
-                //     ],
-                //   ),
-                // ),
+                const SizedBox(
+                  width: 6,
+                ),
+                TextButton(
+                  child: Row(
+                    children: [
+                      Text(
+                        'Copy Link',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 14,
+                      ),
+                      FaIcon(
+                        FontAwesomeIcons.clipboard,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ],
+                  ),
+                  onPressed: () {},
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+                    backgroundColor: Colors.blue,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12))),
+                    textStyle: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  width: 6,
+                ),
+                TextButton(
+                  child: Row(
+                    children: [
+                      Text(
+                        'Share',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.white,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 14,
+                      ),
+                      FaIcon(
+                        FontAwesomeIcons.shareFromSquare,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ],
+                  ),
+                  onPressed: () {},
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+                    backgroundColor: Colors.blue,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12))),
+                    textStyle: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                )
               ],
             ),
             Divider(
               endIndent: 30,
               indent: 30,
-              thickness: 3,
+              thickness: 2,
+              height: 28,
               color: Colors.grey,
             ),
             Text(
@@ -180,7 +155,7 @@ class _StoryDetailOpenWidgetState extends State<StoryDetailOpenWidget> {
                 fontSize: Theme.of(context).textTheme.titleLarge!.fontSize,
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 8,
             ),
             if (comments.isNotEmpty)
@@ -189,6 +164,8 @@ class _StoryDetailOpenWidgetState extends State<StoryDetailOpenWidget> {
                   itemBuilder: (context, index) {
                     final commentData = comments[index];
                     if (commentData.type == "comment") {
+                      if (commentData.by.isEmpty)
+                        return const SizedBox.shrink();
                       return Comment(widget.hnStory, commentData);
                     } else {
                       print(commentData.type);
@@ -199,7 +176,7 @@ class _StoryDetailOpenWidgetState extends State<StoryDetailOpenWidget> {
                 ),
               )
             else
-              Text('No comments today!!!!!!!')
+              const Text('No comments today!!!!!!!')
           ],
         ),
       ),
@@ -222,7 +199,6 @@ class _CommentState extends State<Comment> {
   Widget build(BuildContext context) {
     return Card(
       elevation: 0.0,
-      margin: EdgeInsets.symmetric(vertical: 4),
       child: ListTile(
         onLongPress: () {
           //TODO Handle copying to clipboard
@@ -241,8 +217,7 @@ class _CommentState extends State<Comment> {
                 ),
                 children: [
               TextSpan(
-                  text:
-                      "•  " + getCommentTime(widget.commentData.time) + " ago",
+                  text: "•  ${getCommentTime(widget.commentData.time)} ago",
                   style: TextStyle(
                     fontWeight: FontWeight.normal,
                     fontSize: 12,

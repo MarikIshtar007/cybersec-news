@@ -1,7 +1,8 @@
 import 'dart:convert';
 
 import 'package:cybersec_news/hackernews_api/hackernews_api.dart';
-import 'package:cybersec_news/models/home_response.dart';
+import 'package:cybersec_news/models/all_story_data.dart';
+import 'package:cybersec_news/models/home_story_data.dart';
 import 'package:cybersec_news/utility/constants.dart';
 import 'package:cybersec_news/utility/local_storage_schematic.dart';
 import 'package:flutter/foundation.dart';
@@ -31,7 +32,7 @@ class HackerNewsCacheHelper {
             _cacheTimeout));
   }
 
-  static HomeResponse getCachedHomeData() {
+  static HomeStoryData getCachedHomeData() {
     final List<HnStory> newStories = [];
     final List<HnStory> topStories = [];
 
@@ -63,10 +64,11 @@ class HackerNewsCacheHelper {
           .map((e) => HnStory.fromJson(e))
           .toList());
     }
-    return HomeResponse(topStories: topStories, newStories: newStories);
+    return HomeStoryData(
+        carouselTopStories: topStories, newStories: newStories);
   }
 
-  static Future<HomeResponse> getHomeStoriesFromNetwork() async {
+  static Future<HomeStoryData> getHomeStoriesFromNetwork() async {
     // Get new data when cache is invalid/unavailable
     final result = await HackerNews.getStories(HnNewsType.topStories, 8);
     final jsonResponse = result.response as Map<String, dynamic>;
@@ -96,12 +98,20 @@ class HackerNewsCacheHelper {
       return 1;
     });
 
-    return HomeResponse(
-        topStories: (jsonResponse['data'] as List)
+    return HomeStoryData(
+        carouselTopStories: (jsonResponse['data'] as List)
             .map((e) => HnStory.fromJson(e))
             .toList(),
         newStories: (jsonResponseTwo['data'] as List)
             .map((e) => HnStory.fromJson(e))
             .toList());
+  }
+
+  static Future<AllStoryData> getAllStories(HnNewsType type) async {
+    final result = await HackerNews.getStories(type, 50);
+    final jsonRes = result.response as Map<String, dynamic>;
+
+    return AllStoryData(
+        (jsonRes['data'] as List).map((e) => HnStory.fromJson(e)).toList());
   }
 }

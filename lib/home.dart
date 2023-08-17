@@ -1,6 +1,8 @@
+import 'package:cybersec_news/hackernews_api/helper/enums.dart';
 import 'package:cybersec_news/hackernews_api/model/story.dart';
-import 'package:cybersec_news/models/HomeStoryData.dart';
+import 'package:cybersec_news/models/home_story_data.dart';
 import 'package:cybersec_news/provider/hn_provider.dart';
+import 'package:cybersec_news/story_view_all_screen.dart';
 import 'package:cybersec_news/widgets/announcement.dart';
 import 'package:cybersec_news/widgets/hn_story_tile.dart';
 import 'package:cybersec_news/widgets/top_stories_carousel.dart';
@@ -92,10 +94,11 @@ class _MainBodyState extends State<MainBody>
         }
         if (snapshot.data == null) {
           return Center(
-              child: ListTile(
-            title: Text("Wow. So empty"),
-            leading: CircularProgressIndicator(),
-          ));
+            child: ListTile(
+              title: Text("Wow. So empty"),
+              leading: CircularProgressIndicator(),
+            ),
+          );
         }
         switch (snapshot.data!.state) {
           case StoryQueryState.background_querying:
@@ -196,7 +199,11 @@ class BodyContent extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) =>
+                                StoryViewAllScreen(HnNewsType.topStories)));
+                      },
                     )
                   ],
                 ),
@@ -233,7 +240,11 @@ class BodyContent extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) =>
+                                StoryViewAllScreen(HnNewsType.newStories)));
+                      },
                     )
                   ],
                 ),

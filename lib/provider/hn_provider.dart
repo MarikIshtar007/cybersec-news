@@ -1,8 +1,9 @@
 import 'dart:async';
 
-import 'package:cybersec_news/models/HomeStoryData.dart';
+import 'package:cybersec_news/hackernews_api/hackernews_api.dart';
+import 'package:cybersec_news/models/all_story_data.dart';
 import 'package:cybersec_news/models/base.dart';
-import 'package:cybersec_news/models/home_response.dart';
+import 'package:cybersec_news/models/home_story_data.dart';
 import 'package:cybersec_news/utility/api_cache_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
@@ -16,6 +17,13 @@ class StoryStateWrapper {
   StoryStateWrapper({required this.state, required this.data});
 }
 
+class AllStorySoftDataHolder extends BaseDataClass {
+  AllStoryData newStories;
+  AllStoryData topStories;
+
+  AllStorySoftDataHolder({required this.newStories, required this.topStories});
+}
+
 class HnProvider extends ChangeNotifier {
   final BehaviorSubject<StoryStateWrapper> _homeState =
       BehaviorSubject<StoryStateWrapper>();
@@ -23,14 +31,20 @@ class HnProvider extends ChangeNotifier {
   HomeStoryData softDataHolder =
       HomeStoryData(carouselTopStories: [], newStories: []);
 
+  AllStorySoftDataHolder allDataSoftHolder = AllStorySoftDataHolder(
+      newStories: AllStoryData.none(), topStories: AllStoryData.none());
+
+  final BehaviorSubject<StoryStateWrapper> _allStoryState =
+      BehaviorSubject<StoryStateWrapper>();
+
+  BehaviorSubject<StoryStateWrapper> get allStoryState => _allStoryState;
+
   BehaviorSubject<StoryStateWrapper> get homeState => _homeState;
 
   HnProvider() {
     bool forceOverride = false;
-    HomeResponse initialData = HackerNewsCacheHelper.getCachedHomeData();
-    softDataHolder = HomeStoryData(
-        carouselTopStories: initialData.topStories,
-        newStories: initialData.newStories);
+    HomeStoryData initialData = HackerNewsCacheHelper.getCachedHomeData();
+    softDataHolder = initialData;
     if (softDataHolder.newStories.isEmpty ||
         softDataHolder.carouselTopStories.isEmpty) {
       print("H#08: Is this true everytime??");
@@ -41,27 +55,36 @@ class HnProvider extends ChangeNotifier {
     // Background Query + data = show the app
     homeState.add(StoryStateWrapper(
         state: StoryQueryState.background_querying, data: softDataHolder));
+    allStoryState.add(StoryStateWrapper(
+        state: StoryQueryState.querying, data: allDataSoftHolder));
     debugPrint(HackerNewsCacheHelper.cacheTimeout().toString());
     getHomeData(override: forceOverride);
   }
 
-  //TODO: Find an efficient way to handle this logic
+  Future<void> getAllStories(HnNewsType type) async {
+    allStoryState.add(StoryStateWrapper(
+        state: StoryQueryState.querying, data: allDataSoftHolder));
+    try {
+      final response = await HackerNewsCacheHelper.getAllStories(type);
+      allDataSoftHolder.topStories = response;
+
+      allStoryState.add(StoryStateWrapper(
+          state: StoryQueryState.done, data: allDataSoftHolder));
+    } catch (err, stk) {
+      debugPrint("Error in querying home data: $err --> $stk");
+      allStoryState.add(StoryStateWrapper(
+          state: StoryQueryState.error, data: allDataSoftHolder));
+    }
+  }
+
   Future<void> getHomeData({bool override = false}) async {
     try {
-      if (override) {
+      if (override || (!override && HackerNewsCacheHelper.cacheTimeout())) {
         final homeDataResponse =
             await HackerNewsCacheHelper.getHomeStoriesFromNetwork();
         softDataHolder = HomeStoryData(
-            carouselTopStories: homeDataResponse.topStories,
+            carouselTopStories: homeDataResponse.carouselTopStories,
             newStories: homeDataResponse.newStories);
-      } else {
-        if (HackerNewsCacheHelper.cacheTimeout()) {
-          final homeDataResponse =
-              await HackerNewsCacheHelper.getHomeStoriesFromNetwork();
-          softDataHolder = HomeStoryData(
-              carouselTopStories: homeDataResponse.topStories,
-              newStories: homeDataResponse.newStories);
-        }
       }
       homeState.add(
           StoryStateWrapper(state: StoryQueryState.done, data: softDataHolder));
