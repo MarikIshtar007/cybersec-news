@@ -2,8 +2,10 @@ import 'package:cybersec_news/hackernews_api/hackernews_api.dart';
 import 'package:cybersec_news/utility/comment_helper.dart';
 import 'package:cybersec_news/widgets/story_header.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class StoryDetailOpenWidget extends StatefulWidget {
   final HnStory hnStory;
@@ -57,7 +59,16 @@ class _StoryDetailOpenWidgetState extends State<StoryDetailOpenWidget> {
                         fontSize: 16,
                       ),
                     ),
-                    onPressed: () {},
+                    onPressed: () async {
+                      try {
+                        await launchUrl(Uri.parse(widget.hnStory.url));
+                      } catch (err, stk) {
+                        debugPrint("Something went wrong: $err => $stk");
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text('Something went wrong'),
+                        ));
+                      }
+                    },
                     style: TextButton.styleFrom(
                       padding:
                           EdgeInsets.symmetric(horizontal: 20, vertical: 14),
@@ -200,8 +211,13 @@ class _CommentState extends State<Comment> {
     return Card(
       elevation: 0.0,
       child: ListTile(
-        onLongPress: () {
-          //TODO Handle copying to clipboard
+        onLongPress: () async {
+          await Clipboard.setData(ClipboardData(
+                  text:
+                      "${widget.commentData.by} wrote :\n${widget.commentData.text}"))
+              .then((value) => ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text("Successfully copied to clipboard"))));
         },
         isThreeLine: false,
         dense: true,
@@ -232,37 +248,35 @@ class _CommentState extends State<Comment> {
             children: [
               Html(
                 data: widget.commentData.text,
-                onLinkTap: (url, context, map, element) {
+                onLinkTap: (url, _, __, ___) {
                   debugPrint("The tapped url: $url");
                   //TODO: Launch webview to view the comment in:
-                  // Either make a custom webview or a custom page to
-                  // showcase just the post and comment in question.
+                  try {
+                    if (url != null) {
+                      launchUrl(Uri.parse(url));
+                    }
+                  } catch (err, stk) {
+                    debugPrint("Something went wrong: $err => $stk");
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text('Something went wrong'),
+                    ));
+                  }
                 },
                 //TODO: Add onImageTAp
 //https://github.com/Sub6Resources/flutter_html/tree/master/example
                 onAnchorTap: (url, _, __, ___) {
-                  print("dddd $url");
+                  try {
+                    if (url != null) {
+                      launchUrl(Uri.parse(url));
+                    }
+                  } catch (err, stk) {
+                    debugPrint("Something went wrong: $err => $stk");
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text('Something went wrong'),
+                    ));
+                  }
                 },
               ),
-              /*
-              //TODO: Launch new page and show single comment tree with recursive child iterations
-              Padding(
-                padding: EdgeInsets.only(
-                    left: MediaQuery.of(context).size.width * 0.2),
-                child: InkWell(
-                  onTap: () {
-
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) =>
-                            CommentDetail(widget.hnStory, widget.commentData)));
-                    //TODO: Goto new page
-
-                  },
-                  child: Text('Read Replies'),
-                ),
-
-              ),
-               */
             ],
           ),
         ),

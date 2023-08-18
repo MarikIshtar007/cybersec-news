@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:cybersec_news/hackernews_api/hackernews_api.dart';
-import 'package:cybersec_news/models/all_story_data.dart';
 import 'package:cybersec_news/models/home_story_data.dart';
 import 'package:cybersec_news/utility/constants.dart';
 import 'package:cybersec_news/utility/local_storage_schematic.dart';
@@ -107,11 +106,10 @@ class HackerNewsCacheHelper {
             .toList());
   }
 
-  static Future<AllStoryData> getAllStories(HnNewsType type) async {
+  static Future<List<HnStory>> getAllStories(HnNewsType type) async {
     final result = await HackerNews.getStories(type, 50);
     final jsonRes = result.response as Map<String, dynamic>;
 
-    return AllStoryData(
-        (jsonRes['data'] as List).map((e) => HnStory.fromJson(e)).toList());
+    return (jsonRes['data'] as List).map((e) => HnStory.fromJson(e)).toList();
   }
 }

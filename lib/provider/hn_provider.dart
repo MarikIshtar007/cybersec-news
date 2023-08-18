@@ -17,13 +17,6 @@ class StoryStateWrapper {
   StoryStateWrapper({required this.state, required this.data});
 }
 
-class AllStorySoftDataHolder extends BaseDataClass {
-  AllStoryData newStories;
-  AllStoryData topStories;
-
-  AllStorySoftDataHolder({required this.newStories, required this.topStories});
-}
-
 class HnProvider extends ChangeNotifier {
   final BehaviorSubject<StoryStateWrapper> _homeState =
       BehaviorSubject<StoryStateWrapper>();
@@ -31,8 +24,7 @@ class HnProvider extends ChangeNotifier {
   HomeStoryData softDataHolder =
       HomeStoryData(carouselTopStories: [], newStories: []);
 
-  AllStorySoftDataHolder allDataSoftHolder = AllStorySoftDataHolder(
-      newStories: AllStoryData.none(), topStories: AllStoryData.none());
+  AllStorySoftDataHolder allDataSoftHolder = AllStorySoftDataHolder.none();
 
   final BehaviorSubject<StoryStateWrapper> _allStoryState =
       BehaviorSubject<StoryStateWrapper>();
@@ -64,9 +56,20 @@ class HnProvider extends ChangeNotifier {
   Future<void> getAllStories(HnNewsType type) async {
     allStoryState.add(StoryStateWrapper(
         state: StoryQueryState.querying, data: allDataSoftHolder));
+    if ((type == HnNewsType.newStories &&
+            allDataSoftHolder.newStories.isNotEmpty) ||
+        (type == HnNewsType.topStories &&
+            allDataSoftHolder.topStories.isNotEmpty)) {
+      allStoryState.add(StoryStateWrapper(
+          state: StoryQueryState.background_querying, data: allDataSoftHolder));
+    }
     try {
       final response = await HackerNewsCacheHelper.getAllStories(type);
-      allDataSoftHolder.topStories = response;
+      if (type == HnNewsType.topStories) {
+        allDataSoftHolder.topStories = response;
+      } else {
+        allDataSoftHolder.newStories = response;
+      }
 
       allStoryState.add(StoryStateWrapper(
           state: StoryQueryState.done, data: allDataSoftHolder));

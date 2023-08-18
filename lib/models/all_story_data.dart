@@ -1,10 +1,11 @@
 import 'package:cybersec_news/hackernews_api/model/story.dart';
 import 'package:cybersec_news/models/base.dart';
 
-class AllStoryData extends BaseDataClass {
-  final List<HnStory> dataList;
+class AllStorySoftDataHolder extends BaseDataClass {
+  List<HnStory> newStories;
+  List<HnStory> topStories;
 
-  AllStoryData(this.dataList);
-
-  AllStoryData.none({this.dataList = const []});
+  AllStorySoftDataHolder({required this.newStories, required this.topStories});
+  AllStorySoftDataHolder.none(
+      {this.newStories = const [], this.topStories = const []});
 }

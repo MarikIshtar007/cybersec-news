@@ -1,8 +1,11 @@
 import 'package:cybersec_news/hackernews_api/hackernews_api.dart';
+import 'package:cybersec_news/models/all_story_data.dart';
 import 'package:cybersec_news/provider/hn_provider.dart';
-import 'package:cybersec_news/utility/string_capitalization.dart';
+import 'package:cybersec_news/utility/constants.dart';
 import 'package:cybersec_news/widgets/hn_story_tile.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 class StoryViewAllScreen extends StatefulWidget {
@@ -29,8 +32,20 @@ class _StoryViewAllScreenState extends State<StoryViewAllScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          systemOverlayStyle: SystemUiOverlayStyle.dark.copyWith(
+            statusBarColor: Colors.white,
+          ),
           automaticallyImplyLeading: true,
-          title: Text(widget.type.toString().split('.').last.capitalize()),
+          title: Text(enumToString(widget.type)),
+          actions: [
+            IconButton(
+              icon: FaIcon(FontAwesomeIcons.arrowsRotate),
+              onPressed: () async {
+                await Provider.of<HnProvider>(context, listen: false)
+                    .getAllStories(widget.type);
+              },
+            )
+          ],
         ),
         backgroundColor: Colors.white,
         body: StreamBuilder(
@@ -51,9 +66,15 @@ class _StoryViewAllScreenState extends State<StoryViewAllScreen> {
               case StoryQueryState.background_querying:
                 final data = snapshot.data!.data as AllStorySoftDataHolder;
                 if (widget.type == HnNewsType.topStories) {
-                  return BasicListView(data.topStories.dataList);
+                  return BasicListView(
+                    data.topStories,
+                    loading: true,
+                  );
                 } else {
-                  return BasicListView(data.newStories.dataList);
+                  return BasicListView(
+                    data.newStories,
+                    loading: true,
+                  );
                 }
               case StoryQueryState.querying:
                 return const Center(
@@ -62,25 +83,32 @@ class _StoryViewAllScreenState extends State<StoryViewAllScreen> {
               case StoryQueryState.done:
                 final data = snapshot.data!.data as AllStorySoftDataHolder;
                 if (widget.type == HnNewsType.topStories) {
-                  return BasicListView(data.topStories.dataList);
+                  return BasicListView(data.topStories);
                 } else {
-                  return BasicListView(data.newStories.dataList);
+                  return BasicListView(data.newStories);
                 }
               case StoryQueryState.error:
                 final data = snapshot.data!.data as AllStorySoftDataHolder;
-                return Center(
-                    child: Text(
-                        "It seems we are having trouble connecting to the network-something"));
-              // if (data.newStories) {
-              //   return Center(
-              //       child: Text(
-              //           "It seems we are having trouble connecting to the network-something"));
-              // } else {
-              //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              //     content: Text('It looks like we failed to get the data!'),
-              //   ));
-              //   return BasicListView(data.dataList);
-              // }
+                if ((widget.type == HnNewsType.topStories &&
+                        data.topStories.isEmpty) ||
+                    (widget.type == HnNewsType.newStories &&
+                        data.newStories.isEmpty)) {
+                  return Center(
+                      child: Text(
+                          "It seems we are having trouble connecting to the network-something"));
+                }
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text(
+                    'There was some error getting updated data. Please try again later!',
+                  ),
+                  duration: Duration(seconds: 6),
+                  dismissDirection: DismissDirection.horizontal,
+                ));
+                if (widget.type == HnNewsType.newStories) {
+                  return BasicListView(data.newStories);
+                } else {
+                  return BasicListView(data.topStories);
+                }
             }
           },
         ));
@@ -89,16 +117,40 @@ class _StoryViewAllScreenState extends State<StoryViewAllScreen> {
 
 class BasicListView extends StatelessWidget {
   final List<HnStory> hnStoryList;
+  final bool loading;
 
-  const BasicListView(this.hnStoryList, {Key? key}) : super(key: key);
+  const BasicListView(this.hnStoryList, {this.loading = false, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: hnStoryList.length,
-      itemBuilder: (context, index) {
-        return HnStoryListTile(hnStoryList[index]);
-      },
+    return Stack(
+      alignment: Alignment.topCenter,
+      children: [
+        ListView.builder(
+          itemCount: hnStoryList.length,
+          itemBuilder: (context, index) {
+            return HnStoryListTile(hnStoryList[index]);
+          },
+        ),
+        AnimatedPositioned(
+          top: loading ? 40 : -60,
+          duration: Duration(milliseconds: 400),
+          child: Material(
+            elevation: 4.0,
+            shape: CircleBorder(),
+            child: Container(
+                height: 50,
+                width: 50,
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: CircularProgressIndicator()),
+          ),
+        )
+      ],
     );
   }
 }
