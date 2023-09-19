@@ -3,6 +3,7 @@ import 'package:cybersec_news/hackernews_api/model/story.dart';
 import 'package:cybersec_news/models/home_story_data.dart';
 import 'package:cybersec_news/provider/hn_provider.dart';
 import 'package:cybersec_news/story_view_all_screen.dart';
+import 'package:cybersec_news/utility/constants.dart';
 import 'package:cybersec_news/widgets/announcement.dart';
 import 'package:cybersec_news/widgets/hn_story_tile.dart';
 import 'package:cybersec_news/widgets/top_stories_carousel.dart';
@@ -25,8 +26,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: hnPrimaryColor,
         bottomNavigationBar: NavigationBar(
+          backgroundColor: hnSecondaryColor,
           destinations: [
             NavigationDestination(
                 icon: FaIcon(
@@ -48,16 +50,15 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         ),
         appBar: AppBar(
-          systemOverlayStyle: SystemUiOverlayStyle.dark.copyWith(
-            statusBarColor: Colors.white,
-          ),
-          backgroundColor: Colors.white,
+          systemOverlayStyle: SystemUiOverlayStyle.light
+              .copyWith(statusBarColor: hnPrimaryColor),
+          backgroundColor: hnPrimaryColor,
           elevation: 0.0,
           leading: IconButton(
             onPressed: () => _key.currentState!.openDrawer(),
             icon: Icon(
               Icons.menu_rounded,
-              color: Colors.black,
+              color: Colors.white,
             ),
           ),
           actions: [
@@ -65,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: Icon(
                 Icons.bookmark_outline,
                 size: 30,
-                color: Colors.black,
+                color: Colors.white,
               ),
               onPressed: () {},
             )
@@ -90,7 +91,13 @@ class _MainBodyState extends State<MainBody>
       stream: Provider.of<HnProvider>(context).homeState.stream,
       builder: (context, AsyncSnapshot<StoryStateWrapper> snapshot) {
         if (snapshot.hasError) {
-          return Center(child: Text('Something went terribly wrong. '));
+          return Center(
+              child: Text(
+            'Something went terribly wrong. ',
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ));
         }
         if (snapshot.data == null) {
           return Center(
@@ -111,7 +118,6 @@ class _MainBodyState extends State<MainBody>
                   (snapshot.data!.data as HomeStoryData).carouselTopStories;
               final List<HnStory> newStoryData =
                   (snapshot.data!.data as HomeStoryData).newStories;
-              //TODO: Stack + little progress indicator -- check passing down variable for state
               return BodyContent(
                   carouselData: carouselData, newStoryData: newStoryData);
             }
@@ -185,16 +191,22 @@ class BodyContent extends StatelessWidget {
                     Text(
                       'Top Stories',
                       style: TextStyle(
-                        color: Colors.black,
+                        color: hnPrimaryTextColor,
                         fontWeight: FontWeight.w700,
                         fontSize: 24,
                       ),
                     ),
                     TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.blue.shade800,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
                       child: Text(
                         'View all',
                         style: TextStyle(
-                          color: Colors.blue,
+                          color: hnPrimaryTextColor,
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
                         ),
@@ -226,16 +238,22 @@ class BodyContent extends StatelessWidget {
                       'New Stories',
                       style: TextStyle(
                         fontFamily: 'Montserrat',
-                        color: Colors.black,
+                        color: hnPrimaryTextColor,
                         fontWeight: FontWeight.w700,
                         fontSize: 24,
                       ),
                     ),
                     TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.blue.shade800,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
                       child: Text(
                         'View all',
                         style: TextStyle(
-                          color: Colors.blue,
+                          color: hnPrimaryTextColor,
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
                         ),

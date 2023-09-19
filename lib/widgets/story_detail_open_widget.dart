@@ -1,5 +1,6 @@
 import 'package:cybersec_news/hackernews_api/hackernews_api.dart';
 import 'package:cybersec_news/utility/comment_helper.dart';
+import 'package:cybersec_news/widgets/image_full_view.dart';
 import 'package:cybersec_news/widgets/story_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -35,6 +36,7 @@ class _StoryDetailOpenWidgetState extends State<StoryDetailOpenWidget> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Container(
+        color: Color(0xFF424242),
         padding: EdgeInsets.symmetric(
             vertical: MediaQuery.of(context).size.height * 0.01,
             horizontal: MediaQuery.of(context).size.width * 0.03),
@@ -72,7 +74,7 @@ class _StoryDetailOpenWidgetState extends State<StoryDetailOpenWidget> {
                     style: TextButton.styleFrom(
                       padding:
                           EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                      backgroundColor: Colors.blue,
+                      backgroundColor: Colors.blue.shade800,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(12))),
                     ),
@@ -105,7 +107,7 @@ class _StoryDetailOpenWidgetState extends State<StoryDetailOpenWidget> {
                   onPressed: () {},
                   style: TextButton.styleFrom(
                     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 14),
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Colors.blue.shade800,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(12))),
                     textStyle: TextStyle(
@@ -141,7 +143,7 @@ class _StoryDetailOpenWidgetState extends State<StoryDetailOpenWidget> {
                   onPressed: () {},
                   style: TextButton.styleFrom(
                     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 14),
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Colors.blue.shade800,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(12))),
                     textStyle: TextStyle(
@@ -162,6 +164,7 @@ class _StoryDetailOpenWidgetState extends State<StoryDetailOpenWidget> {
             Text(
               'Comments',
               style: TextStyle(
+                color: Colors.white,
                 fontWeight: FontWeight.bold,
                 fontSize: Theme.of(context).textTheme.titleLarge!.fontSize,
               ),
@@ -209,6 +212,7 @@ class _CommentState extends State<Comment> {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: Color(0xFF424242),
       elevation: 0.0,
       child: ListTile(
         onLongPress: () async {
@@ -241,44 +245,60 @@ class _CommentState extends State<Comment> {
                     color: Colors.grey,
                   ))
             ])),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(left: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Html(
-                data: widget.commentData.text,
-                onLinkTap: (url, _, __, ___) {
-                  debugPrint("The tapped url: $url");
-                  //TODO: Launch webview to view the comment in:
-                  try {
-                    if (url != null) {
-                      launchUrl(Uri.parse(url));
+        subtitle: Row(
+          children: [
+            VerticalDivider(
+              color: Colors.white54,
+              width: 2,
+              thickness: 2,
+            ),
+            Flexible(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 16.0),
+                child: Html(
+                  data: widget.commentData.text,
+                  style: {
+                    "*": Style(
+                      color: Colors.white,
+                    )
+                  },
+                  extensions: [
+                    OnImageTapExtension(onImageTap: (imageUrl, _, __) {
+                      if (imageUrl != null && imageUrl.isNotEmpty) {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) =>
+                                ImageFullView(imageUrl ?? "")));
+                      }
+                    })
+                  ],
+                  onLinkTap: (url, _, __) {
+                    try {
+                      if (url != null) {
+                        launchUrl(Uri.parse(url));
+                      }
+                    } catch (err, stk) {
+                      debugPrint("Something went wrong: $err => $stk");
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text('Something went wrong'),
+                      ));
                     }
-                  } catch (err, stk) {
-                    debugPrint("Something went wrong: $err => $stk");
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text('Something went wrong'),
-                    ));
-                  }
-                },
-                //TODO: Add onImageTAp
-//https://github.com/Sub6Resources/flutter_html/tree/master/example
-                onAnchorTap: (url, _, __, ___) {
-                  try {
-                    if (url != null) {
-                      launchUrl(Uri.parse(url));
+                  },
+                  onAnchorTap: (url, _, __) {
+                    try {
+                      if (url != null) {
+                        launchUrl(Uri.parse(url));
+                      }
+                    } catch (err, stk) {
+                      debugPrint("Something went wrong: $err => $stk");
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text('Something went wrong'),
+                      ));
                     }
-                  } catch (err, stk) {
-                    debugPrint("Something went wrong: $err => $stk");
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text('Something went wrong'),
-                    ));
-                  }
-                },
+                  },
+                ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

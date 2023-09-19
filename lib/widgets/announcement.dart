@@ -2,6 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cybersec_news/hackernews_api/helper/constants.dart';
 import 'package:cybersec_news/models/announcement_data.dart';
+import 'package:cybersec_news/utility/constants.dart';
+import 'package:cybersec_news/widgets/image_full_view.dart';
 import 'package:flutter/material.dart';
 
 class Announcements extends StatefulWidget {
@@ -57,14 +59,21 @@ class AnnouncementTile extends StatelessWidget {
     return InkWell(
       onTap: () {
         showModalBottomSheet(
+            backgroundColor: hnSecondaryColor,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(12),
+                    topLeft: Radius.circular(12))),
             context: context,
             isScrollControlled: true,
             builder: (context) {
               return FractionallySizedBox(
                 heightFactor: 0.8,
                 child: Container(
+                  alignment: Alignment.topCenter,
                   padding: EdgeInsets.all(8.0),
                   decoration: BoxDecoration(
+                      color: hnSecondaryColor,
                       borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(12),
                           topRight: Radius.circular(12))),
@@ -104,11 +113,15 @@ class AnnouncementTile extends StatelessWidget {
                       SizedBox(
                         height: 10,
                       ),
-                      Flexible(
+                      Expanded(
                         child: Container(
                           height: MediaQuery.of(context).size.width * 0.13,
-                          child: ListView.builder(
+                          child: ListView.separated(
+                            separatorBuilder: (context, index) => SizedBox(
+                              width: 5,
+                            ),
                             scrollDirection: Axis.horizontal,
+                            physics: BouncingScrollPhysics(),
                             itemBuilder: (context, index) {
                               return InkWell(
                                 onTap: () {
@@ -126,11 +139,13 @@ class AnnouncementTile extends StatelessWidget {
                                       decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(8),
+                                          color: Colors.grey.shade600
+                                              .withOpacity(0.4),
                                           image: DecorationImage(
                                             image: CachedNetworkImageProvider(
                                               data.images[index],
                                             ),
-                                            fit: BoxFit.fill,
+                                            fit: BoxFit.contain,
                                           )),
                                     ),
                                   ),
@@ -140,7 +155,23 @@ class AnnouncementTile extends StatelessWidget {
                             itemCount: data.images.length,
                           ),
                         ),
-                      )
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      if (data.actionBtnDisplay)
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              minimumSize: const Size.fromHeight(50),
+                              backgroundColor: hnPrimaryColor),
+                          child: Text(
+                            data.actionBtnText,
+                            style: TextStyle(color: hnPrimaryTextColor),
+                          ),
+                          onPressed: () {
+                            //TODO redirect to webpage
+                          },
+                        )
                     ],
                   ),
                 ),
@@ -202,37 +233,6 @@ class AnnouncementTile extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class ImageFullView extends StatelessWidget {
-  final String _imageUrl;
-  const ImageFullView(this._imageUrl, {Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0.0,
-        automaticallyImplyLeading: true
-      ),
-      backgroundColor: Colors.black,
-      body: InteractiveViewer(
-        child: Hero(
-          tag: _imageUrl,
-          child: Container(
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-                image: DecorationImage(
-                    fit: BoxFit.fill,
-                    image: CachedNetworkImageProvider(
-                      _imageUrl,
-                    ))),
           ),
         ),
       ),

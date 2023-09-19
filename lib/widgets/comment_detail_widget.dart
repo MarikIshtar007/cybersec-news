@@ -95,7 +95,7 @@ class _CommentDetailState extends State<CommentDetail> {
                       children: [
                         Html(
                           data: widget.hnComment.text,
-                          onLinkTap: (url, context, map, element) {
+                          onLinkTap: (url, context, map) {
                             debugPrint("The tapped url: $url");
                             //TODO: Launch webview to view the comment in:
                             // Either make a custom webview or a custom page to
@@ -103,7 +103,7 @@ class _CommentDetailState extends State<CommentDetail> {
                           },
                           //TODO: Add onImageTAp
 //https://github.com/Sub6Resources/flutter_html/tree/master/example
-                          onAnchorTap: (url, _, __, ___) {
+                          onAnchorTap: (url, _, __) {
                             print("dddd $url");
                           },
                         ),

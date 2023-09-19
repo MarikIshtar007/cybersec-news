@@ -1,6 +1,7 @@
 import 'package:animations/animations.dart';
 import 'package:cybersec_news/hackernews_api/hackernews_api.dart';
 import 'package:cybersec_news/hackernews_api/helper/constants.dart';
+import 'package:cybersec_news/utility/constants.dart';
 import 'package:cybersec_news/widgets/story_detail_open_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -18,13 +19,20 @@ class _HnStoryListTileState extends State<HnStoryListTile> {
   @override
   Widget build(BuildContext context) {
     return OpenContainer(
+      // DO NOT REMOVE; unless flutter fixes this bug
+      // Roundabout way of opening the container using tappable false is to
+      // prevent multiple recalls of the build method of the open widget,
+      // leading to multiple API calls
+      // Ref: https://github.com/flutter/flutter/issues/74111
       tappable: false,
+      closedColor: hnPrimaryColor,
       closedBuilder: (context, action) {
         return GestureDetector(
           onTap: () {
             action();
           },
           child: Card(
+            color: hnPrimaryColor,
             margin: EdgeInsets.only(
                 bottom:
                     Theme.of(context).textTheme.displaySmall!.fontSize! * 0.4),
@@ -41,7 +49,7 @@ class _HnStoryListTileState extends State<HnStoryListTile> {
                   height:
                       Theme.of(context).textTheme.displaySmall!.fontSize! * 1.5,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: hnSecondaryColor,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   padding: EdgeInsets.all(10),
@@ -63,7 +71,7 @@ class _HnStoryListTileState extends State<HnStoryListTile> {
                 child: Text(
                   widget.hnStory.title,
                   style: TextStyle(
-                    color: Colors.grey.shade800,
+                    color: hnPrimaryTextColor,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -71,17 +79,23 @@ class _HnStoryListTileState extends State<HnStoryListTile> {
               subtitle: Padding(
                 padding: const EdgeInsets.only(right: 8.0),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.ideographic,
                   children: [
                     SizedBox(
                       width: 4,
                     ),
                     Text(
                       '@' + widget.hnStory.by,
+                      style: TextStyle(
+                        color: hnPrimaryTextColor,
+                      ),
                     ),
                     Spacer(),
-                    Icon(
-                      Icons.access_time_outlined,
-                      size: 20,
+                    FaIcon(
+                      FontAwesomeIcons.clock,
+                      size: 14,
+                      color: hnPrimaryTextColor,
                     ),
                     SizedBox(
                       width: 4,
@@ -90,16 +104,25 @@ class _HnStoryListTileState extends State<HnStoryListTile> {
                       kStoryTileFormatter.format(
                           DateTime.fromMillisecondsSinceEpoch(
                               widget.hnStory.time * 1000)),
+                      style: TextStyle(
+                        color: hnPrimaryTextColor,
+                      ),
                     ),
                     Spacer(),
                     FaIcon(
                       FontAwesomeIcons.comments,
-                      size: 20,
+                      size: 14,
+                      color: hnPrimaryTextColor,
                     ),
                     SizedBox(
                       width: 4,
                     ),
-                    Text(widget.hnStory.kids.length.toString())
+                    Text(
+                      widget.hnStory.kids.length.toString(),
+                      style: TextStyle(
+                        color: hnPrimaryTextColor,
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -112,132 +135,6 @@ class _HnStoryListTileState extends State<HnStoryListTile> {
       openBuilder: (context, _) {
         return StoryDetailOpenWidget(widget.hnStory);
       },
-      // openBuilder: (context, _) {
-      //   return SafeArea(
-      //     child: Container(
-      //       padding: EdgeInsets.symmetric(
-      //           vertical: MediaQuery.of(context).size.height * 0.03,
-      //           horizontal: MediaQuery.of(context).size.width * 0.05),
-      //       child: SingleChildScrollView(
-      //         child: Column(
-      //           mainAxisAlignment: MainAxisAlignment.start,
-      //           crossAxisAlignment: CrossAxisAlignment.start,
-      //           children: [
-      //             Padding(
-      //               padding: EdgeInsets.only(top: 10),
-      //               child: DropCapText(
-      //                 widget.hnStory.title,
-      //                 style: TextStyle(
-      //                   fontSize:
-      //                       Theme.of(context).textTheme.headlineSmall!.fontSize,
-      //                   color: Colors.grey.shade800,
-      //                   fontWeight: FontWeight.w700,
-      //                 ),
-      //                 dropCapPosition: DropCapPosition.start,
-      //                 dropCapPadding: EdgeInsets.only(right: 16),
-      //                 dropCap: DropCap(
-      //                   width: Theme.of(context)
-      //                           .textTheme
-      //                           .headlineSmall!
-      //                           .fontSize! *
-      //                       3,
-      //                   height: Theme.of(context)
-      //                           .textTheme
-      //                           .headlineSmall!
-      //                           .fontSize! *
-      //                       3,
-      //                   child: Container(
-      //                     alignment: Alignment.center,
-      //                     decoration: BoxDecoration(
-      //                       color: Colors.grey.shade300,
-      //                       borderRadius: BorderRadius.circular(12),
-      //                     ),
-      //                     padding: EdgeInsets.all(10),
-      //                     child: Text(
-      //                       widget.hnStory.title[0],
-      //                       style: TextStyle(
-      //                         fontSize: Theme.of(context)
-      //                                 .textTheme
-      //                                 .headlineSmall!
-      //                                 .fontSize! *
-      //                             1.5,
-      //                         fontWeight: FontWeight.bold,
-      //                       ),
-      //                     ),
-      //                   ),
-      //                 ),
-      //               ),
-      //             ),
-      //             Row(
-      //               children: [
-      //                 Expanded(
-      //                   flex: 5,
-      //                   child: Row(
-      //                     children: [
-      //                       TextButton(
-      //                         child: Text('Visit'),
-      //                         onPressed: () {},
-      //                         style: TextButton.styleFrom(
-      //                             backgroundColor: Colors.blue,
-      //                             textStyle: TextStyle(
-      //                               color: Colors.white,
-      //                               fontWeight: FontWeight.bold,
-      //                             )),
-      //                       )
-      //                     ],
-      //                   ),
-      //                 ),
-      //                 Expanded(
-      //                   flex: 2,
-      //                   child: Column(
-      //                     children: [
-      //                       Text('by ${widget.hnStory.by}'),
-      //                       Text(
-      //                         kStoryTileFormatter.format(
-      //                             DateTime.fromMillisecondsSinceEpoch(
-      //                                 widget.hnStory.time * 1000)),
-      //                         style: TextStyle(
-      //                           color: Colors.grey,
-      //                           fontWeight: FontWeight.bold,
-      //                         ),
-      //                       ),
-      //                       Text((widget.hnStory.kids.isEmpty ||
-      //                               widget.hnStory.descendants == 0)
-      //                           ? 'No Comments'
-      //                           : '${NumberFormat.compact().format(widget.hnStory.descendants)} comments')
-      //                     ],
-      //                   ),
-      //                 ),
-      //                 Text(
-      //                   '@ ${widget.hnStory.by}',
-      //                   style: TextStyle(
-      //                     color: Colors.grey.shade600,
-      //                     fontWeight: FontWeight.w500,
-      //                   ),
-      //                 ),
-      //               ],
-      //             ),
-      //             Divider(
-      //               endIndent: 30,
-      //               indent: 30,
-      //               thickness: 3,
-      //               color: Colors.grey,
-      //             ),
-      //             if (comments.isNotEmpty)
-      //               ListView.builder(
-      //                 itemBuilder: (context, index) {
-      //                   return FlutterLogo();
-      //                 },
-      //                 itemCount: comments.length,
-      //               )
-      //             else
-      //               Text('No comments today!!!!!!!')
-      //           ],
-      //         ),
-      //       ),
-      //     ),
-      //   );
-      // },
     );
   }
 }

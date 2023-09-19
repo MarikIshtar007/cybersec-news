@@ -23,6 +23,7 @@ class StoryHeader extends StatelessWidget {
           child: Text(
             hnStory.title[0],
             style: TextStyle(
+              color: Color(0xFF424242),
               fontSize:
                   Theme.of(context).textTheme.headlineSmall!.fontSize! * 1.5,
               fontWeight: FontWeight.bold,
@@ -41,7 +42,7 @@ class StoryHeader extends StatelessWidget {
                 hnStory.title,
                 style: TextStyle(
                   fontSize: Theme.of(context).textTheme.headlineSmall!.fontSize,
-                  color: Colors.grey.shade800,
+                  color: Colors.white,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -49,7 +50,7 @@ class StoryHeader extends StatelessWidget {
                   text: TextSpan(
                       text: "by ${hnStory.by} ",
                       style: TextStyle(
-                          color: Colors.grey.shade600,
+                          color: Colors.white,
                           fontStyle: FontStyle.italic,
                           fontSize:
                               Theme.of(context).textTheme.bodyLarge!.fontSize),
@@ -58,7 +59,7 @@ class StoryHeader extends StatelessWidget {
                       text:
                           " •  ${kStoryTileFormatter.format(DateTime.fromMillisecondsSinceEpoch(hnStory.time * 1000))}",
                       style: TextStyle(
-                          color: Colors.grey.shade600,
+                          color: Colors.white54,
                           fontStyle: FontStyle.normal,
                           fontSize:
                               Theme.of(context).textTheme.bodyLarge!.fontSize),
